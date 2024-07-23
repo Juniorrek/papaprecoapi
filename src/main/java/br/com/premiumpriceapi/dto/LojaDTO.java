@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LojaDTO {
-    private int id;
+    private Integer id;
     private String nome;
     private String endereco;
 }
