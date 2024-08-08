@@ -19,4 +19,6 @@ public class Produto {
     private String nome;
     private String descricao;
     private String preco;
+    private Double latitude;
+    private Double longitude;
 }
