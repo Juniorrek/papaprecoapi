@@ -8,4 +8,6 @@ import br.com.premiumpriceapi.model.Produto;
 
 public interface ProdutoRepository extends JpaRepository<Produto,Integer> {
     public List<Produto> findByNomeContainingIgnoringCase(String nome);
+
+    public List<Produto> findByNomeContainingIgnoreCaseAndPrecoBetween(String nome, Double precoMin, Double precoMax);
 }

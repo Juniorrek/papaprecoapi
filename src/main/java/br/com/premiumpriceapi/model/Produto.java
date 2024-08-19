@@ -1,5 +1,7 @@
 package br.com.premiumpriceapi.model;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +20,7 @@ public class Produto {
     private Integer id;
     private String nome;
     private String descricao;
-    private String preco;
+    private BigDecimal preco;
     private Double latitude;
     private Double longitude;
 }
