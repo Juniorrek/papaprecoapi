@@ -127,7 +127,8 @@ public class ProdutoREST {
     public ProdutoDTO inserir(@RequestBody ProdutoDTO produto) {
         // salva a Entidade convertida do DTO
         Produto p = mapper.map(produto, Produto.class);
-        p = repo.save(p);      
+        p = repo.save(p);     
+
         // busca o usuário inserido
         Optional<Produto> produt = repo.findById(p.getId());
         // retorna o DTO equivalente à entidade

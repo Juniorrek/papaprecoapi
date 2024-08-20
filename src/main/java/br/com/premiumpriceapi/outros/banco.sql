@@ -33,7 +33,7 @@ CREATE TABLE produto (
 	preco NUMERIC(8,2) NOT NULL,
 	latitude FLOAT NOT NULL,
 	longitude FLOAT NOT NULL,
-	data_insercao TIMESTAMP DEFAULT NOW()
+	data_insercao TIMESTAMP DEFAULT DEFAULT CURRENT_TIMESTAMP
 );
 INSERT INTO produto (nome, preco, latitude, longitude) VALUES 
 ('Banana', 4.50, -25.469680, -49.235317),
