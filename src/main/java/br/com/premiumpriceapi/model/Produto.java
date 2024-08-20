@@ -1,11 +1,16 @@
 package br.com.premiumpriceapi.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Set;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,4 +28,14 @@ public class Produto {
     private BigDecimal preco;
     private Double latitude;
     private Double longitude;
+
+    @Column(name = "data_insercao", insertable = false, updatable = false)
+    private LocalDateTime dataInsercao;
+
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<VotoUsuarioProduto> votos;
+    /*@Column(name = "votos_up", insertable = false, updatable = true)
+    private Integer votosUp;
+    @Column(name = "votos_down", insertable = false, updatable = true)
+    private Integer votosDown;*/
 }
