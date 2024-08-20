@@ -11,7 +11,7 @@ import br.com.premiumpriceapi.repository.UsuarioRepository;
 @RestController
 public class UsuarioREST {
 
-    @Autowired
+    @Autowired 
     private UsuarioRepository repo;
 
     @Autowired

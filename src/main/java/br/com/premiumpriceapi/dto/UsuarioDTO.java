@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 public class UsuarioDTO {
     private Integer id;
-    private String cpf;
     private String nome;
-    private String sobrenome;
+    private String email;
+    private String senha;
     private Set<VotoUsuarioProdutoDTO> votos;
 }

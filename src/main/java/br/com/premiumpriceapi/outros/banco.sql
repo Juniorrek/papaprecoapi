@@ -1,21 +1,16 @@
 CREATE TABLE usuario (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    cpf VARCHAR(11) NOT NULL,
     nome VARCHAR(128) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL
 );
-INSERT INTO usuario (cpf, nome, email, senha) VALUES
-('12345678901', 'Ana Silva', 'ana.silva@example.com', 'senha123'),
-('23456789012', 'Carlos Souza', 'carlos.souza@example.com', 'senha456'),
-('34567890123', 'Fernanda Lima', 'fernanda.lima@example.com', 'senha789'),
-('45678901234', 'João Santos', 'joao.santos@example.com', 'senha012'),
-('56789012345', 'Juliana Oliveira', 'juliana.oliveira@example.com', 'senha345'),
-('67890123456', 'Marcos Pereira', 'marcos.pereira@example.com', 'senha678'),
-('78901234567', 'Maria Costa', 'maria.costa@example.com', 'senha901'),
-('89012345678', 'Pedro Almeida', 'pedro.almeida@example.com', 'senha234'),
-('90123456789', 'Raquel Santos', 'raquel.santos@example.com', 'senha567'),
-('01234567890', 'Roberto Lima', 'roberto.lima@example.com', 'senha890');
+INSERT INTO usuario (nome, email, senha) VALUES 
+('João Silva', 'joao.silva@example.com', '$2a$10$7uV3eBlXeQwoRCz.vR2UjuU1EIEuABk4zIzl2FTSHKKVRrh3a23v2'),
+('Maria Oliveira', 'maria.oliveira@example.com', '$2a$10$8qMntoRTpHExdpXyER5cyOlBGwrGUbJJznbF1Kak49pq6QgCJGYP2'),
+('Carlos Souza', 'carlos.souza@example.com', '$2a$10$5D25DY4ZtGaxTC2IAVaQYu5HCOUxo.YoI9q/SafI/w5QXyovD8Z8O'),
+('Ana Pereira', 'ana.pereira@example.com', '$2a$10$Qft8ICsxyKHJlzPV4tW.7uCRn3yR.9A1kdRdtOkA/O5FdRnYV4I6m'),
+('Lucas Lima', 'lucas.lima@example.com', '$2a$10$1f1iwcnlO8yRcUe4PLsK1u2MzwEdI6AA9vl5qRj2sqkfj2/Qc1WE6');
+
 
 CREATE EXTENSION pg_trgm;  -- Ativar a extensão de trigramas
 CREATE EXTENSION fuzzystrmatch;
