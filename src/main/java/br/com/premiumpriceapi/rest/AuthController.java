@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.premiumpriceapi.dto.request.AuthRequestDTO;
 import br.com.premiumpriceapi.dto.request.RegisterUsuarioRequestDTO;
+import br.com.premiumpriceapi.dto.response.LoginResponseDTO;
 import br.com.premiumpriceapi.model.Usuario;
 import br.com.premiumpriceapi.repository.UsuarioRepository;
+import br.com.premiumpriceapi.services.JwtService;
 
 
 @CrossOrigin
@@ -31,13 +33,16 @@ public class AuthController {
     @Autowired
     private PasswordEncoder encoder;
 
+    @Autowired
+    private JwtService tokenService;
+
     @PostMapping("signin")
-    public ResponseEntity login(@RequestBody AuthRequestDTO authRequest) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthRequestDTO authRequest) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.email(), authRequest.senha()));
 
+        String token = tokenService.generateJwtToken((Usuario) authentication.getPrincipal());
 
-
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
     @PostMapping("signup")

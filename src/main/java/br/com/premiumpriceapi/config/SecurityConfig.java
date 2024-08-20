@@ -1,5 +1,6 @@
 package br.com.premiumpriceapi.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,10 +12,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import br.com.premiumpriceapi.filter.SecurityFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private SecurityFilter securityFilter;
+
     private static final String[] WHITE_LIST_URL = { "/h2-console/**", "/produtos/**" };
 
     @Bean
@@ -25,9 +32,10 @@ public class SecurityConfig {
 			.authorizeHttpRequests((authorize) -> authorize
                 .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/produtos").authenticated()
-                .requestMatchers(WHITE_LIST_URL).permitAll()
+                //.requestMatchers(WHITE_LIST_URL).permitAll()
 				.anyRequest().authenticated()
-			);
+			)
+            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
