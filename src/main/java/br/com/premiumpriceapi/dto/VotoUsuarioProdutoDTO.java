@@ -1,7 +1,5 @@
 package br.com.premiumpriceapi.dto;
 
-import br.com.premiumpriceapi.model.Produto;
-import br.com.premiumpriceapi.model.Usuario;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class VotoUsuarioProdutoDTO {
     private Long id;
-    private Produto produto;
-    private Usuario usuario;
+    private Integer produtoId;
+    private Integer usuarioId;
     private Boolean voto;
 }

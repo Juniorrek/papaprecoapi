@@ -112,6 +112,16 @@ public class ProdutoREST {
 
         return lista.stream().map(e -> mapper.map(e, ProdutoDTO.class)).collect(Collectors.toList());
     }
+    
+    @GetMapping(value = "/produtos/atual" , produces = "application/json;charset=UTF-8")
+    public ProdutoDTO buscarProdutoAtualRanking(@RequestParam("nome") String nome ,
+                                    @RequestParam("latitude") Double latitude,
+                                    @RequestParam("longitude") Double longitude){
+
+        List<Produto> lista = repo.buscarHistoricoProdutoRanking(nome, latitude, longitude);
+
+        return mapper.map(lista.get(0), ProdutoDTO.class);
+    }
 
     @PostMapping(value = "/produtos", produces = "application/json;charset=UTF-8")
     public ProdutoDTO inserir(@RequestBody ProdutoDTO produto) {
