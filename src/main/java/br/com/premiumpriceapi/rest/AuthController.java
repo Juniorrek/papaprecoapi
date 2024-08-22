@@ -1,5 +1,6 @@
 package br.com.premiumpriceapi.rest;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -24,6 +25,7 @@ import br.com.premiumpriceapi.dto.RedefinirSenhaTokenDTO;
 import br.com.premiumpriceapi.dto.request.AuthRequestDTO;
 import br.com.premiumpriceapi.dto.request.RegisterUsuarioRequestDTO;
 import br.com.premiumpriceapi.dto.response.LoginResponseDTO;
+import br.com.premiumpriceapi.dto.response.LoginUsuarioResponseDTO;
 import br.com.premiumpriceapi.model.RedefinirSenhaToken;
 import br.com.premiumpriceapi.model.Usuario;
 import br.com.premiumpriceapi.repository.RedefinirSenhaTokenRepository;
@@ -63,7 +65,13 @@ public class AuthController {
 
         String token = tokenService.generateJwtToken((Usuario) authentication.getPrincipal());
 
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        Optional<Usuario> usuario = usuarioRepo.findByEmail(authRequest.email());
+        if(usuario.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        LoginUsuarioResponseDTO u = new LoginUsuarioResponseDTO(usuario.get().getId(), usuario.get().getEmail(), usuario.get().getNome());
+
+        return ResponseEntity.ok(new LoginResponseDTO(token, u));
     }
 
     @PostMapping("signup")
@@ -131,6 +139,9 @@ public class AuthController {
         if(rsToken != null && rsToken.getUsuario() != null) {
             rsToken.getUsuario().setSenha(encoder.encode(senhaDto.getNovaSenha()));
             usuarioRepo.save(rsToken.getUsuario());
+
+            rsToken.setDataValidade(new Date());
+            senhaTokenRepo.save(rsToken);
 
             return ResponseEntity.ok().build();
         } else {
