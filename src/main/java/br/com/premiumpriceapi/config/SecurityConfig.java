@@ -30,7 +30,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/produtos").authenticated()
                 //.requestMatchers(WHITE_LIST_URL).permitAll()
 				.anyRequest().authenticated()

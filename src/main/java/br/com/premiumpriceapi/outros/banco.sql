@@ -72,3 +72,11 @@ CREATE TABLE loja (
 	nome VARCHAR(128) NOT NULL,
 	endereco VARCHAR(256) NOT NULL
 );
+
+CREATE TABLE redefinir_senha_token (
+    id INTEGER PRIMARY KEY  GENERATED ALWAYS AS IDENTITY,
+    token VARCHAR(255) NOT NULL,
+    usuario_id INTEGER NOT NULL,
+    data_validade TIMESTAMP NOT NULL,
+    CONSTRAINT fk_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+);
