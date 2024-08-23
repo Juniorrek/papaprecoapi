@@ -36,6 +36,9 @@ public class Usuario implements UserDetails {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<VotoUsuarioProduto> votos;
 
+    @OneToMany(mappedBy = "usuario")
+    private Set<Produto> produtos;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

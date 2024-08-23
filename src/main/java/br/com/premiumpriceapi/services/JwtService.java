@@ -12,6 +12,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 
 import br.com.premiumpriceapi.model.Usuario;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Service
 public class JwtService {
@@ -46,6 +47,14 @@ public class JwtService {
         } catch(JWTCreationException exception) {
             return "";
         }
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null) return null;
+
+        return authHeader.replace("Bearer ", "");
     }
 
     private Instant genExpirationDate() {

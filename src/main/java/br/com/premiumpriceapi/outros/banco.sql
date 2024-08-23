@@ -11,15 +11,7 @@ INSERT INTO usuario (nome, email, senha) VALUES
 ('Ana Pereira', 'ana.pereira@example.com', '$2a$10$Qft8ICsxyKHJlzPV4tW.7uCRn3yR.9A1kdRdtOkA/O5FdRnYV4I6m'),
 ('Lucas Lima', 'lucas.lima@example.com', '$2a$10$1f1iwcnlO8yRcUe4PLsK1u2MzwEdI6AA9vl5qRj2sqkfj2/Qc1WE6');
 
-
-CREATE EXTENSION pg_trgm;  -- Ativar a extensão de trigramas
-CREATE EXTENSION fuzzystrmatch;
-
-CREATE INDEX idx_produto_nome_trgm ON produto USING gin (nome gin_trgm_ops);
-CREATE INDEX idx_produto_nome_latitude_longitude ON produto (nome, latitude, longitude);
-CREATE INDEX idx_voto_produto ON voto_usuario_produto (id_produto, voto);
-CREATE INDEX idx_voto ON voto_usuario_produto (voto);
-CREATE INDEX idx_produto_nome ON produto (nome);
+/**************************************************************************************************************/
 
 CREATE TABLE produto (
 	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -28,22 +20,27 @@ CREATE TABLE produto (
 	preco NUMERIC(8,2) NOT NULL,
 	latitude FLOAT NOT NULL,
 	longitude FLOAT NOT NULL,
-	data_insercao TIMESTAMP DEFAULT DEFAULT CURRENT_TIMESTAMP
+	data_insercao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	usuario_id INTEGER NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
-INSERT INTO produto (nome, preco, latitude, longitude) VALUES 
-('Banana', 4.50, -25.469680, -49.235317),
-('Banana', 5.00, -25.469680, -49.235317),
-('Banana', 5.50, -25.469680, -49.235317),
-('Banana', 4.80, -25.469685, -49.235317),
-('Pacote de Açúcar', 3.00, -25.469580, -49.235217),
-('Pão de Forma', 7.50, -25.469780, -49.235417),
-('Leite', 4.00, -25.469480, -49.235117),
-('Café', 10.00, -25.469880, -49.235517),
-('Arroz', 20.00, -25.469380, -49.235017),
-('Feijão', 8.00, -25.469980, -49.235617),
-('Macarrão', 6.00, -25.469280, -49.234917),
-('Óleo de Soja', 8.50, -25.470080, -49.235717),
-('Sal', 2.50, -25.469180, -49.234817);
+INSERT INTO produto (nome, preco, latitude, longitude, usuario_id) VALUES 
+('Banana', 4.50, -25.469680, -49.235317, 1),
+('Banana', 5.00, -25.469680, -49.235317, 2),
+('Banana', 5.50, -25.469680, -49.235317, 3),
+('Banana', 4.80, -25.469685, -49.235317, 4),
+('Pacote de Açúcar', 3.00, -25.469580, -49.235217, 5),
+('Pão de Forma', 7.50, -25.469780, -49.235417, 1),
+('Leite', 4.00, -25.469480, -49.235117, 2),
+('Café', 10.00, -25.469880, -49.235517, 3),
+('Arroz', 20.00, -25.469380, -49.235017, 4),
+('Feijão', 8.00, -25.469980, -49.235617, 5),
+('Macarrão', 6.00, -25.469280, -49.234917, 1),
+('Óleo de Soja', 8.50, -25.470080, -49.235717, 2),
+('Sal', 2.50, -25.469180, -49.234817, 3);
+
+
+/**************************************************************************************************************/
 
 CREATE TABLE voto_usuario_produto (
 	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -67,11 +64,17 @@ INSERT INTO voto_usuario_produto (id_usuario, id_produto, voto) VALUES
 (4, 2, TRUE),
 (5, 2, TRUE);
 
-CREATE TABLE loja (
+
+/**************************************************************************************************************/
+
+/*CREATE TABLE loja (
 	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 	nome VARCHAR(128) NOT NULL,
 	endereco VARCHAR(256) NOT NULL
-);
+);*/
+
+
+/**************************************************************************************************************/
 
 CREATE TABLE redefinir_senha_token (
     id INTEGER PRIMARY KEY  GENERATED ALWAYS AS IDENTITY,
@@ -80,3 +83,17 @@ CREATE TABLE redefinir_senha_token (
     data_validade TIMESTAMP NOT NULL,
     CONSTRAINT fk_usuario FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
+
+
+
+/**************************************************************************************************************/
+
+
+CREATE EXTENSION pg_trgm;  -- Ativar a extensão de trigramas
+CREATE EXTENSION fuzzystrmatch;
+
+CREATE INDEX idx_produto_nome_trgm ON produto USING gin (nome gin_trgm_ops);
+CREATE INDEX idx_produto_nome_latitude_longitude ON produto (nome, latitude, longitude);
+CREATE INDEX idx_voto_produto ON voto_usuario_produto (id_produto, voto);
+CREATE INDEX idx_voto ON voto_usuario_produto (voto);
+CREATE INDEX idx_produto_nome ON produto (nome);
