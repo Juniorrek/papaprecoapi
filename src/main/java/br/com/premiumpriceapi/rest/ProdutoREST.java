@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.premiumpriceapi.dto.ProdutoDTO;
 import br.com.premiumpriceapi.model.Produto;
 import br.com.premiumpriceapi.repository.ProdutoRepository;
+import br.com.premiumpriceapi.services.NominatimService;
 
 @CrossOrigin
 @RestController
@@ -27,6 +28,9 @@ public class ProdutoREST {
 
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private NominatimService nominatimService;
     
     @GetMapping(value = "/produtos")// , produces = "application/json;charset=UTF-8")
     public List<ProdutoDTO> buscarTodos(){
@@ -63,7 +67,7 @@ public class ProdutoREST {
         List<Produto> lista = repo.findByNomeContainingIgnoreCaseAndPrecoBetween(nome, precoMin, precoMax); 
         
         lista = lista.stream()
-                 .filter(p -> calculateDistance(p.getLatitude(), p.getLongitude(), latitude, longitude) <= distancia)
+                 .filter(p -> calculateDistance(p.getLocalizacao().getLatitude(), p.getLocalizacao().getLongitude(), latitude, longitude) <= distancia)
                  .collect(Collectors.toList());
 
         return lista.stream().map(e -> mapper.map(e, ProdutoDTO.class)).collect(Collectors.toList());
@@ -97,8 +101,10 @@ public class ProdutoREST {
         
         //FILTRA DISTANCIA
         lista = lista.stream()
-                 .filter(p -> calculateDistance(p.getLatitude(), p.getLongitude(), latitude, longitude) <= distancia)
+                 .filter(p -> calculateDistance(p.getLocalizacao().getLatitude(), p.getLocalizacao().getLongitude(), latitude, longitude) <= distancia)
                  .collect(Collectors.toList());
+
+        //lista.forEach(p -> p.setLocalizacaoString(nominatimService.reverseGeocodingShop(p.getLocalizacao().getLatitude(), p.getLocalizacao().getLongitude())));
 
         return lista.stream().map(e -> mapper.map(e, ProdutoDTO.class)).collect(Collectors.toList());
     }

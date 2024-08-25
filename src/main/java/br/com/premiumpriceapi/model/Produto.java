@@ -28,8 +28,10 @@ public class Produto {
     private String nome;
     private String descricao;
     private BigDecimal preco;
-    private Double latitude;
-    private Double longitude;
+
+    @ManyToOne
+    @JoinColumn(name = "localizacao_id")
+    private Localizacao localizacao;
 
     @Column(name = "data_insercao", insertable = false, updatable = false)
     private LocalDateTime dataInsercao;

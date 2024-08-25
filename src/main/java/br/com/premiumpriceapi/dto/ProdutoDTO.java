@@ -14,8 +14,7 @@ public class ProdutoDTO {
     private String nome;
     private String descricao;
     private BigDecimal preco;
-    private Double latitude;
-    private Double longitude;
+    private LocalizacaoDTO localizacao;
     private LocalDateTime dataInsercao;
     private Set<VotoUsuarioProdutoDTO> votos;
     /*private Integer votosUp;

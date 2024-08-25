@@ -13,31 +13,57 @@ INSERT INTO usuario (nome, email, senha) VALUES
 
 /**************************************************************************************************************/
 
+CREATE TABLE localizacao (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    latitude DECIMAL(9, 6) NOT NULL,
+    longitude DECIMAL(9, 6) NOT NULL,
+    descricao VARCHAR(128) NOT NULL,
+    UNIQUE (latitude, longitude)
+);
+
+INSERT INTO localizacao (latitude, longitude, descricao)
+VALUES 
+    (-25.46968, -49.235317, 'Rua Banana'),
+    (-25.469685, -49.235317, 'Rua Banana'),
+    (-25.46958, -49.235217, 'Rua Pacote de Açúcar'),
+    (-25.46978, -49.235417, 'Rua Pão de Forma'),
+    (-25.46948, -49.235117, 'Rua Leite'),
+    (-25.46988, -49.235517, 'Rua Café'),
+    (-25.46938, -49.235017, 'Rua Arroz'),
+    (-25.46998, -49.235617, 'Rua Feijão'),
+    (-25.46928, -49.234917, 'Rua Macarrão'),
+    (-25.47008, -49.235717, 'Rua Óleo de Soja'),
+    (-25.46918, -49.234817, 'Rua Sal');
+
+/**************************************************************************************************************/
+
 CREATE TABLE produto (
 	id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
 	nome VARCHAR(128) NOT NULL,
 	descricao VARCHAR(512),
 	preco NUMERIC(8,2) NOT NULL,
-	latitude FLOAT NOT NULL,
-	longitude FLOAT NOT NULL,
+    localizacao_id INTEGER,
 	data_insercao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	usuario_id INTEGER NOT NULL,
+    FOREIGN KEY (localizacao_id) REFERENCES localizacao(id) ON DELETE CASCADE,
     FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
-INSERT INTO produto (nome, preco, latitude, longitude, usuario_id) VALUES 
-('Banana', 4.50, -25.469680, -49.235317, 1),
-('Banana', 5.00, -25.469680, -49.235317, 2),
-('Banana', 5.50, -25.469680, -49.235317, 3),
-('Banana', 4.80, -25.469685, -49.235317, 4),
-('Pacote de Açúcar', 3.00, -25.469580, -49.235217, 5),
-('Pão de Forma', 7.50, -25.469780, -49.235417, 1),
-('Leite', 4.00, -25.469480, -49.235117, 2),
-('Café', 10.00, -25.469880, -49.235517, 3),
-('Arroz', 20.00, -25.469380, -49.235017, 4),
-('Feijão', 8.00, -25.469980, -49.235617, 5),
-('Macarrão', 6.00, -25.469280, -49.234917, 1),
-('Óleo de Soja', 8.50, -25.470080, -49.235717, 2),
-('Sal', 2.50, -25.469180, -49.234817, 3);
+
+INSERT INTO produto (nome, preco, usuario_id, localizacao_id)
+VALUES 
+    ('Banana', 4.50, 1, 1),
+    ('Banana', 5.00, 2, 1),
+    ('Banana', 5.50, 3, 1),
+    ('Banana', 4.80, 4, 2),
+    ('Pacote de Açúcar', 3.00, 5, 3),
+    ('Pão de Forma', 7.50, 1, 4),
+    ('Leite', 4.00, 2, 5),
+    ('Café', 10.00, 3, 6),
+    ('Arroz', 20.00, 4, 7),
+    ('Feijão', 8.00, 5, 8),
+    ('Macarrão', 6.00, 1, 9),
+    ('Óleo de Soja', 8.50, 2, 10),
+    ('Sal', 2.50, 3, 11);
 
 
 /**************************************************************************************************************/
