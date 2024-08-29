@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: premiumpriceapi
+  datasource:
+    url: 'jdbc:postgresql://localhost:5432/premiumprice'
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    generate-ddl: false
+  mail:
+    host: smtp.gmail.com
+    port: '465'
+    protocol: smtps
+    username: premiumpriceapi@gmail.com
+    password: zyem lozx fwhr mvsc
+    properties:
+      mail:
+        transport:
+          protocol: smtps
+        smtps:
+          auth: true
+          starttls:
+            enable: true
+          timeout: '8000'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+server:
+  servlet:
+    context-path: /premiumpriceapi
+jwt:
+  rsa:
+    pub: 'classpath:jwt.rsa.pub'
+    priv: 'classpath:jwt.rsa.priv'
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          jpa: DEBUG
+        security: TRACE

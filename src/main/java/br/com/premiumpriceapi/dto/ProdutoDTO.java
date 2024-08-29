@@ -2,7 +2,7 @@ package br.com.premiumpriceapi.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ public class ProdutoDTO {
     private BigDecimal preco;
     private LocalizacaoDTO localizacao;
     private LocalDateTime dataInsercao;
-    private Set<VotoUsuarioProdutoDTO> votos;
+    private List<VotoUsuarioProdutoDTO> votos;
     /*private Integer votosUp;
     private Integer votosDown;*/
 }

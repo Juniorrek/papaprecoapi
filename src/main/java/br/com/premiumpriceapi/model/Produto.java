@@ -2,7 +2,7 @@ package br.com.premiumpriceapi.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,7 +37,7 @@ public class Produto {
     private LocalDateTime dataInsercao;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<VotoUsuarioProduto> votos;
+    private List<VotoUsuarioProduto> votos;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

@@ -1,11 +1,6 @@
 package br.com.premiumpriceapi.model;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,7 +17,7 @@ import lombok.Setter;
 @Table(name="usuario")
 @Getter
 @Setter
-public class Usuario implements UserDetails {
+public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -30,49 +25,17 @@ public class Usuario implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private String email;
-    @Column(nullable = false)
+    @Column
     private String senha;
     
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<VotoUsuarioProduto> votos;
+    private List<VotoUsuarioProduto> votos;
 
     @OneToMany(mappedBy = "usuario")
-    private Set<Produto> produtos;
+    private List<Produto> produtos;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
-
-    @Override
-    public String getPassword() {
-        return senha;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    private Boolean verificado;
+    private String tokenVerificarEmail;
 
     
 }

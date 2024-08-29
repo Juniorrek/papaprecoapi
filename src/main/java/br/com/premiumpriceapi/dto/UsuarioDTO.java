@@ -1,6 +1,6 @@
 package br.com.premiumpriceapi.dto;
 
-import java.util.Set;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,5 +12,5 @@ public class UsuarioDTO {
     private String nome;
     private String email;
     private String senha;
-    private Set<VotoUsuarioProdutoDTO> votos;
+    private List<VotoUsuarioProdutoDTO> votos;
 }

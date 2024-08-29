@@ -2,14 +2,16 @@ CREATE TABLE usuario (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     nome VARCHAR(128) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL
+    senha VARCHAR(255),
+    verificado BOOL DEFAULT FALSE,
+    token_verificar_email VARCHAR(255)
 );
-INSERT INTO usuario (nome, email, senha) VALUES 
-('João Silva', 'joao.silva@example.com', '$2a$10$7uV3eBlXeQwoRCz.vR2UjuU1EIEuABk4zIzl2FTSHKKVRrh3a23v2'),
-('Maria Oliveira', 'maria.oliveira@example.com', '$2a$10$8qMntoRTpHExdpXyER5cyOlBGwrGUbJJznbF1Kak49pq6QgCJGYP2'),
-('Carlos Souza', 'carlos.souza@example.com', '$2a$10$5D25DY4ZtGaxTC2IAVaQYu5HCOUxo.YoI9q/SafI/w5QXyovD8Z8O'),
-('Ana Pereira', 'ana.pereira@example.com', '$2a$10$Qft8ICsxyKHJlzPV4tW.7uCRn3yR.9A1kdRdtOkA/O5FdRnYV4I6m'),
-('Lucas Lima', 'lucas.lima@example.com', '$2a$10$1f1iwcnlO8yRcUe4PLsK1u2MzwEdI6AA9vl5qRj2sqkfj2/Qc1WE6');
+INSERT INTO usuario (nome, email, senha, verificado) VALUES 
+('João Silva', 'joao.silva@example.com', '$2a$10$7uV3eBlXeQwoRCz.vR2UjuU1EIEuABk4zIzl2FTSHKKVRrh3a23v2', true),
+('Maria Oliveira', 'maria.oliveira@example.com', '$2a$10$8qMntoRTpHExdpXyER5cyOlBGwrGUbJJznbF1Kak49pq6QgCJGYP2', true),
+('Carlos Souza', 'carlos.souza@example.com', '$2a$10$5D25DY4ZtGaxTC2IAVaQYu5HCOUxo.YoI9q/SafI/w5QXyovD8Z8O', true),
+('Ana Pereira', 'ana.pereira@example.com', '$2a$10$Qft8ICsxyKHJlzPV4tW.7uCRn3yR.9A1kdRdtOkA/O5FdRnYV4I6m', true),
+('Lucas Lima', 'lucas.lima@example.com', '$2a$10$1f1iwcnlO8yRcUe4PLsK1u2MzwEdI6AA9vl5qRj2sqkfj2/Qc1WE6', true);
 
 /**************************************************************************************************************/
 
@@ -90,6 +92,16 @@ INSERT INTO voto_usuario_produto (id_usuario, id_produto, voto) VALUES
 (4, 2, TRUE),
 (5, 2, TRUE);
 
+/**************************************************************************************************************/
+
+/*CREATE TABLE token_verificar_email (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    token VARCHAR(255) NOT NULL,
+    data_criacao TIMESTAMP NOT NULL,
+    data_validade TIMESTAMP NOT NULL,
+    usuario_id INTEGER NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
+);*/
 
 /**************************************************************************************************************/
 

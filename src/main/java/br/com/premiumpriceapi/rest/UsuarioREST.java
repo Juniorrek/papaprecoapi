@@ -2,24 +2,20 @@ package br.com.premiumpriceapi.rest;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.premiumpriceapi.dto.UsuarioDTO;
-import br.com.premiumpriceapi.dto.request.AlterarSenhaRequestDTO;
 import br.com.premiumpriceapi.model.Usuario;
 import br.com.premiumpriceapi.repository.UsuarioRepository;
-import br.com.premiumpriceapi.services.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 
 @CrossOrigin
 @RestController
-@RequestMapping("usuario")
+@RequestMapping("usuarios")
 public class UsuarioREST {
 
     @Autowired
@@ -31,10 +27,15 @@ public class UsuarioREST {
     @Autowired
     private PasswordEncoder encoder;
 
-    @Autowired
-    private JwtService tokenService;
+    @GetMapping(value = "/{id}" , produces = "application/json;charset=UTF-8")
+    public UsuarioDTO buscarPorId(@PathVariable("id") Integer id){
 
-    @PutMapping("/alterarSenha")
+        Usuario usuario = repo.findById(id).get();     
+
+        return mapper.map(usuario, UsuarioDTO.class);
+    }
+
+    /*@PutMapping("/alterarSenha")
     public ResponseEntity<?> alterarSenha(@RequestBody AlterarSenhaRequestDTO alterarSenhaRequestDTO, HttpServletRequest request) {
         String token = tokenService.resolveToken(request);
         String senhaNova = alterarSenhaRequestDTO.getSenhaNova();
@@ -62,6 +63,6 @@ public class UsuarioREST {
         }
 
         return ResponseEntity.badRequest().body("Erro ao alterar senha");
-    }
+    }*/
 
 }
