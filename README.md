@@ -1,6 +1,6 @@
-# premiumpriceapi
+# papaprecoapi
 
-API do projeto premiumprice
+API do projeto papapreco
 
 # Instalamento
 

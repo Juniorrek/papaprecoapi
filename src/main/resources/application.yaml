@@ -1,12 +1,16 @@
 spring:
   application:
-    name: premiumpriceapi
+    name: papaprecoapi
   datasource:
-    url: 'jdbc:postgresql://localhost:5432/premiumprice'
+    url: 'jdbc:postgresql://localhost:5432/papapreco'
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
   jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
     hibernate:
       ddl-auto: none
     generate-ddl: false
@@ -32,7 +36,7 @@ spring:
           issuer-uri: https://accounts.google.com
 server:
   servlet:
-    context-path: /premiumpriceapi
+    context-path: /papaprecoapi
 jwt:
   rsa:
     pub: 'classpath:jwt.rsa.pub'
@@ -44,3 +48,9 @@ logging:
         data:
           jpa: DEBUG
         security: TRACE
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE

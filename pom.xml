@@ -8,11 +8,11 @@
 		<version>3.3.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>br.com.premiumpriceapi</groupId>
-	<artifactId>premiumpriceapi</artifactId>
+	<groupId>br.com.papaprecoapi</groupId>
+	<artifactId>papaprecoapi</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>premiumpriceapi</name>
+	<name>papaprecoapi</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -81,12 +81,6 @@
 			<version>3.3.2</version>
 		</dependency>
 		
-		<!--<dependency>
-			<groupId>com.auth0</groupId>
-			<artifactId>java-jwt</artifactId>
-			<version>4.4.0</version>
-		</dependency> -->
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
@@ -105,35 +99,11 @@
 			<version>20240303</version>
 		</dependency>
 
-		<!--<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>-->
-
-		<!--<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-oauth2-client</artifactId>
-		</dependency>-->
-
-		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-resource-server -->
-		<!--<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-oauth2-resource-server</artifactId>
-			<version>6.3.3</version>
-		</dependency>-->
-
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
-		<!--<dependency>
-			<groupId>com.google.api-client</groupId>
-			<artifactId>google-api-client</artifactId>
-			<version>2.6.0</version>
-		</dependency>-->
 
 		<!-- https://mvnrepository.com/artifact/com.google.auth/google-auth-library-oauth2-http -->
 		<dependency>
@@ -141,18 +111,6 @@
 			<artifactId>google-auth-library-oauth2-http</artifactId>
 			<version>1.24.1</version>
 		</dependency>
-
-
-
-
-		<!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-spatial -->
-		<!-- <dependency>
-			<groupId>org.hibernate.orm</groupId>
-			<artifactId>hibernate-spatial</artifactId>
-			<version>6.6.0.Final</version>
-		</dependency>-->
-
-
 
 	</dependencies>
 
