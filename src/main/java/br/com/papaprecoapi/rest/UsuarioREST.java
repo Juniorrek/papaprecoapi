@@ -2,14 +2,18 @@ package br.com.papaprecoapi.rest;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.papaprecoapi.dto.UsuarioDTO;
+import br.com.papaprecoapi.dto.request.AlterarSenhaRequestDTO;
 import br.com.papaprecoapi.model.Usuario;
 import br.com.papaprecoapi.repository.UsuarioRepository;
 
@@ -35,22 +39,18 @@ public class UsuarioREST {
         return mapper.map(usuario, UsuarioDTO.class);
     }
 
-    /*@PutMapping("/alterarSenha")
-    public ResponseEntity<?> alterarSenha(@RequestBody AlterarSenhaRequestDTO alterarSenhaRequestDTO, HttpServletRequest request) {
-        String token = tokenService.resolveToken(request);
+    @PutMapping("/alterarSenha")
+    public ResponseEntity<?> alterarSenha(@RequestBody AlterarSenhaRequestDTO alterarSenhaRequestDTO) {
         String senhaNova = alterarSenhaRequestDTO.getSenhaNova();
         String senhaAtual = alterarSenhaRequestDTO.getSenhaAtual();
         Integer usuarioId = alterarSenhaRequestDTO.getUsuarioId();
 
-        if (token != null && senhaNova != null && senhaAtual != null && usuarioId != null) {
-            String email = tokenService.validateToken(token);
-            Usuario uToken = repo.findByEmail(email).get();
-
+        if (senhaNova != null && senhaAtual != null && usuarioId != null) {
             Usuario usuario = repo.findById(usuarioId).get();
             
-            if (uToken == null || usuario == null) return ResponseEntity.badRequest().body("Error: Usuário não encontrado!");
+            if (usuario == null) return ResponseEntity.badRequest().body("Error: Usuário não encontrado!");
 
-            if (!uToken.getId().equals(usuario.getId())) return ResponseEntity.badRequest().body("Error: Não autorizado!");
+            //if (!uToken.getId().equals(usuario.getId())) return ResponseEntity.badRequest().body("Error: Não autorizado!");
 
             if (!encoder.matches(senhaAtual, usuario.getSenha())) return ResponseEntity.badRequest().body("Senha atual inválida!");
 
@@ -63,6 +63,6 @@ public class UsuarioREST {
         }
 
         return ResponseEntity.badRequest().body("Erro ao alterar senha");
-    }*/
+    }
 
 }

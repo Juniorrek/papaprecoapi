@@ -31,7 +31,6 @@ import br.com.papaprecoapi.repository.UsuarioRepository;
 import br.com.papaprecoapi.services.CodigoVerificacaoService;
 import br.com.papaprecoapi.services.EmailService;
 import br.com.papaprecoapi.services.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 
 
 @CrossOrigin
@@ -231,7 +230,7 @@ public class AuthController {
     }
 
     @PostMapping("/redefinirSenha/gerarToken")
-    public ResponseEntity<?> redefinirSenhaGerarToken(HttpServletRequest request, @RequestParam("email") String email) {
+    public ResponseEntity<?> redefinirSenhaGerarToken(@RequestParam("email") String email) {
         Optional<Usuario> usuario = usuarioRepo.findByEmail(email);
         if (usuario.isEmpty()) {
             return ResponseEntity.badRequest().body("Error: Usuário não encontrado!");

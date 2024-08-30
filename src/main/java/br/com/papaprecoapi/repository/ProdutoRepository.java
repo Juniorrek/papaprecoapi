@@ -25,7 +25,8 @@ public interface ProdutoRepository extends JpaRepository<Produto,Integer> {
         "p.preco, " + 
         "l.latitude, " + 
         "l.longitude, " + 
-        "p.data_insercao, " + 
+        "p.data_insercao, "+
+        "p.data_observacao, " + 
         "p.usuario_id, " + 
         "p.localizacao_id, " + 
         "CASE " + 
@@ -43,13 +44,13 @@ public interface ProdutoRepository extends JpaRepository<Produto,Integer> {
         "WHEN (COALESCE(SUM(CASE WHEN v.voto = TRUE THEN 1 ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN v.voto = FALSE THEN 1 ELSE 0 END), 0)) >= 0 THEN 1 " + 
         "ELSE COALESCE(SUM(CASE WHEN v.voto = TRUE THEN 1 ELSE 0 END)) - COALESCE(SUM(CASE WHEN v.voto = FALSE THEN 1 ELSE 0 END)) " + 
         "END DESC, " + 
-        "p.data_insercao DESC " + 
+        "p.data_observacao DESC " + 
         ") AS rn " + 
         "FROM produto p " + 
         "JOIN localizacao l ON l.id = p.localizacao_id " + 
         "LEFT JOIN voto_usuario_produto v ON p.id = v.id_produto " + 
         "WHERE p.preco BETWEEN :precoMin AND :precoMax " + 
-        "GROUP BY p.id, l.latitude, l.longitude/*, LOWER(p.nome), p.latitude, p.longitude, p.data_insercao*/ " + 
+        "GROUP BY p.id, l.latitude, l.longitude/*, LOWER(p.nome), p.latitude, p.longitude, p.data_observacao*/ " + 
         ") " + 
         "SELECT " + 
         "id, " + 
@@ -58,7 +59,8 @@ public interface ProdutoRepository extends JpaRepository<Produto,Integer> {
         "preco, " + 
         "latitude, " + 
         "longitude, " + 
-        "data_insercao, " + 
+        "data_insercao, "+
+        "data_observacao, " + 
         "usuario_id, " + 
         "localizacao_id, " + 
         "tt, " + 
@@ -70,7 +72,7 @@ public interface ProdutoRepository extends JpaRepository<Produto,Integer> {
         "ORDER BY " + 
         "levenshtein_distance, " + 
         "tt DESC, " + 
-        "data_insercao DESC " + 
+        "data_observacao DESC " + 
         "LIMIT 10 ", nativeQuery = true)
     List<Produto> buscarProdutosPorPalavraEPrecoRanking(@Param("palavra") String palavra, @Param("precoMin") Double precoMin, @Param("precoMax") Double precoMax);
     
@@ -83,6 +85,7 @@ public interface ProdutoRepository extends JpaRepository<Produto,Integer> {
             l.latitude,
             l.longitude,
             p.data_insercao,
+            p.data_observacao,
             p.usuario_id,
             p.localizacao_id,
             CASE 
@@ -101,7 +104,7 @@ public interface ProdutoRepository extends JpaRepository<Produto,Integer> {
                 WHEN (COALESCE(SUM(CASE WHEN v.voto = TRUE THEN 1 ELSE 0 END), 0) - COALESCE(SUM(CASE WHEN v.voto = FALSE THEN 1 ELSE 0 END), 0)) >= 0 THEN 1
                 ELSE COALESCE(SUM(CASE WHEN v.voto = TRUE THEN 1 ELSE 0 END)) - COALESCE(SUM(CASE WHEN v.voto = FALSE THEN 1 ELSE 0 END))
             END DESC,
-            p.data_insercao DESC
+            p.data_observacao DESC
         LIMIT 10
     """, nativeQuery = true)
     List<Produto> buscarHistoricoProdutoRanking(@Param("nome") String nome, @Param("latitude") Double latitude, @Param("longitude") Double longitude);

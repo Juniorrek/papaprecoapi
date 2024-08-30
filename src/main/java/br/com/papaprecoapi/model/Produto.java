@@ -36,6 +36,9 @@ public class Produto {
     @Column(name = "data_insercao", insertable = false, updatable = false)
     private LocalDateTime dataInsercao;
 
+    @Column(name = "data_observacao")
+    private LocalDateTime dataObservacao;
+
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<VotoUsuarioProduto> votos;
 

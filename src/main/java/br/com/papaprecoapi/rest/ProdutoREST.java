@@ -1,11 +1,17 @@
 package br.com.papaprecoapi.rest;
 
+import java.lang.reflect.Type;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.papaprecoapi.dto.ProdutoDTO;
+import br.com.papaprecoapi.model.Localizacao;
 import br.com.papaprecoapi.model.Produto;
+import br.com.papaprecoapi.repository.LocalizacaoRepository;
 import br.com.papaprecoapi.repository.ProdutoRepository;
 import br.com.papaprecoapi.services.NominatimService;
 
@@ -31,6 +39,9 @@ public class ProdutoREST {
 
     @Autowired
     private NominatimService nominatimService;
+
+    @Autowired
+    private LocalizacaoRepository localizacaoRepository;
     
     @GetMapping(value = "/produtos")// , produces = "application/json;charset=UTF-8")
     public List<ProdutoDTO> buscarTodos(){
@@ -104,9 +115,44 @@ public class ProdutoREST {
                  .filter(p -> calculateDistance(p.getLocalizacao().getLatitude(), p.getLocalizacao().getLongitude(), latitude, longitude) <= distancia)
                  .collect(Collectors.toList());
 
-        //lista.forEach(p -> p.setLocalizacaoString(nominatimService.reverseGeocodingShop(p.getLocalizacao().getLatitude(), p.getLocalizacao().getLongitude())));
+        // Mapeia para ProdutoDTO e adiciona a distância e a data relativa
+        return lista.stream()
+            .map(produto -> {
+                double distanciaCalculada = calculateDistance(produto.getLocalizacao().getLatitude(),
+                                                              produto.getLocalizacao().getLongitude(),
+                                                              latitude, longitude);
 
-        return lista.stream().map(e -> mapper.map(e, ProdutoDTO.class)).collect(Collectors.toList());
+                if (distanciaCalculada <= distancia) {
+                    ProdutoDTO dto = mapper.map(produto, ProdutoDTO.class);
+                    dto.setDistanciaRelativa(distanciaCalculada);
+
+                    // Calcula e define a data relativa
+                    String dataRelativa = calcularDataRelativa(produto.getDataObservacao());
+                    dto.setDataRelativa(dataRelativa);
+
+                    return dto;
+                } else {
+                    return null;  
+                }
+            })
+            .filter(Objects::nonNull) 
+            .collect(Collectors.toList());
+    }
+
+    private String calcularDataRelativa(LocalDateTime dataObservacao) {
+        Duration duration = Duration.between(dataObservacao, LocalDateTime.now());
+        long dias = duration.toDays();
+
+        if (dias == 0) {
+            return "hoje";
+        } else if (dias == 1) {
+            return "ontem";
+        } else if (dias < 7) {
+            return "há " + dias + " dias";
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            return dataObservacao.format(formatter);
+        }
     }
     
     @GetMapping(value = "/produtos/historico" , produces = "application/json;charset=UTF-8")
@@ -133,11 +179,40 @@ public class ProdutoREST {
     public ProdutoDTO inserir(@RequestBody ProdutoDTO produto) {
         // salva a Entidade convertida do DTO
         Produto p = mapper.map(produto, Produto.class);
+
+        Localizacao l = localizacaoRepository.findByLatitudeAndLongitude(p.getLocalizacao().getLatitude(), p.getLocalizacao().getLongitude());
+        if (l == null) {
+            l = localizacaoRepository.save(p.getLocalizacao());
+        }
+        p.setLocalizacao(l);
+
         p = repo.save(p);     
 
         // busca o usuário inserido
-        Optional<Produto> produt = repo.findById(p.getId());
+        //Optional<Produto> produt = repo.findById(p.getId());
         // retorna o DTO equivalente à entidade
-        return mapper.map(produt, ProdutoDTO.class);
+        return mapper.map(p, ProdutoDTO.class);
+    }
+
+    @PostMapping(value = "/produtos/lista", produces = "application/json;charset=UTF-8")
+    public ResponseEntity<?> inserirLista(@RequestBody List<ProdutoDTO> produtos) {
+        // salva a Entidade convertida do DTO
+        Type produtoListType = new TypeToken<List<Produto>>() {}.getType();
+        List<Produto> prods = mapper.map(produtos, produtoListType);
+
+        if (!prods.isEmpty()) {
+            Localizacao l = localizacaoRepository.findByLatitudeAndLongitude(prods.get(0).getLocalizacao().getLatitude(), prods.get(0).getLocalizacao().getLongitude());
+            if (l == null) {
+                l = localizacaoRepository.save(prods.get(0).getLocalizacao());
+            }
+            
+            for(Produto p : prods) {
+                p.setLocalizacao(l);
+                p = repo.save(p);  
+            }
+
+        }
+
+        return ResponseEntity.ok().build();
     }
 }

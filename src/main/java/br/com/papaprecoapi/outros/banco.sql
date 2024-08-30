@@ -16,8 +16,8 @@ INSERT INTO usuario (nome, email, senha, verificado) VALUES
 
 CREATE TABLE localizacao (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    latitude DECIMAL(9, 6) NOT NULL,
-    longitude DECIMAL(9, 6) NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
     descricao VARCHAR(128) NOT NULL,
     UNIQUE (latitude, longitude)
 );
@@ -35,7 +35,6 @@ VALUES
     (-25.46928, -49.234917, 'Rua Macarrão'),
     (-25.47008, -49.235717, 'Rua Óleo de Soja'),
     (-25.46918, -49.234817, 'Rua Sal');
-
 /**************************************************************************************************************/
 
 CREATE TABLE produto (
@@ -50,21 +49,22 @@ CREATE TABLE produto (
     FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
 
-INSERT INTO produto (nome, preco, usuario_id, localizacao_id)
+INSERT INTO produto (nome, preco, usuario_id, localizacao_id, data_observacao)
 VALUES 
-    ('Banana', 4.50, 1, 1),
-    ('Banana', 5.00, 2, 1),
-    ('Banana', 5.50, 3, 1),
-    ('Banana', 4.80, 4, 2),
-    ('Pacote de Açúcar', 3.00, 5, 3),
-    ('Pão de Forma', 7.50, 1, 4),
-    ('Leite', 4.00, 2, 5),
-    ('Café', 10.00, 3, 6),
-    ('Arroz', 20.00, 4, 7),
-    ('Feijão', 8.00, 5, 8),
-    ('Macarrão', 6.00, 1, 9),
-    ('Óleo de Soja', 8.50, 2, 10),
-    ('Sal', 2.50, 3, 11);
+    ('Banana', 4.50, 1, 1, CURRENT_TIMESTAMP),
+    ('Banana', 5.00, 2, 1, CURRENT_TIMESTAMP),
+    ('Banana', 5.50, 3, 1, CURRENT_TIMESTAMP),
+    ('Banana', 4.80, 4, 2, CURRENT_TIMESTAMP),
+    ('Pacote de Açúcar', 3.00, 5, 3, CURRENT_TIMESTAMP),
+    ('Pão de Forma', 7.50, 1, 4, CURRENT_TIMESTAMP),
+    ('Leite', 4.00, 2, 5, CURRENT_TIMESTAMP),
+    ('Café', 10.00, 3, 6, CURRENT_TIMESTAMP),
+    ('Arroz', 20.00, 4, 7, CURRENT_TIMESTAMP),
+    ('Feijão', 8.00, 5, 8, CURRENT_TIMESTAMP),
+    ('Macarrão', 6.00, 1, 9, CURRENT_TIMESTAMP),
+    ('Óleo de Soja', 8.50, 2, 10, CURRENT_TIMESTAMP),
+    ('Sal', 2.50, 3, 11, CURRENT_TIMESTAMP);
+
 
 
 /**************************************************************************************************************/
