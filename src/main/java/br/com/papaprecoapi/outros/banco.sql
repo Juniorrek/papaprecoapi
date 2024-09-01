@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE TABLE usuario (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     nome VARCHAR(128) NOT NULL,
@@ -18,7 +20,7 @@ CREATE TABLE localizacao (
     id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     latitude DOUBLE PRECISION NOT NULL,
     longitude DOUBLE PRECISION NOT NULL,
-    descricao VARCHAR(128) NOT NULL,
+    descricao VARCHAR(1024) NOT NULL,
     UNIQUE (latitude, longitude)
 );
 
@@ -44,6 +46,7 @@ CREATE TABLE produto (
 	preco NUMERIC(8,2) NOT NULL,
     localizacao_id INTEGER,
 	data_insercao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	data_observacao TIMESTAMP NOT NULL,
 	usuario_id INTEGER NOT NULL,
     FOREIGN KEY (localizacao_id) REFERENCES localizacao(id) ON DELETE CASCADE,
     FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
