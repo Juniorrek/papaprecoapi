@@ -12,5 +12,7 @@ public class UsuarioDTO {
     private String nome;
     private String email;
     private List<VotoUsuarioProdutoDTO> votos;
+    private LocalizacaoDTO localizacao;
     private boolean verificado;
+    private String fcmToken;
 }

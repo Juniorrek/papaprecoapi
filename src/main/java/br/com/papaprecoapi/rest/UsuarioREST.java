@@ -1,5 +1,7 @@
 package br.com.papaprecoapi.rest;
 
+import java.util.Map;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.papaprecoapi.dto.UsuarioDTO;
 import br.com.papaprecoapi.dto.request.AlterarSenhaRequestDTO;
+import br.com.papaprecoapi.model.Localizacao;
 import br.com.papaprecoapi.model.Usuario;
+import br.com.papaprecoapi.repository.LocalizacaoRepository;
 import br.com.papaprecoapi.repository.UsuarioRepository;
 
 @CrossOrigin
@@ -30,6 +34,9 @@ public class UsuarioREST {
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    private LocalizacaoRepository localizacaoRepository;
 
     @GetMapping(value = "/{id}" , produces = "application/json;charset=UTF-8")
     public UsuarioDTO buscarPorId(@PathVariable("id") Integer id){
@@ -63,6 +70,46 @@ public class UsuarioREST {
         }
 
         return ResponseEntity.badRequest().body("Erro ao alterar senha");
+    }
+
+    @PutMapping("/alterarLocalizacaoAlertas")
+    public ResponseEntity<?> alterarLocalizacaoAlertas(@RequestBody UsuarioDTO usuarioDTO) {
+        Usuario usuario = repo.findById(usuarioDTO.getId()).get();
+
+
+        if (usuario == null) return ResponseEntity.badRequest().body("Error: Usuário não encontrado!");
+
+        Localizacao l = localizacaoRepository.findByLatitudeAndLongitude(usuarioDTO.getLocalizacao().getLatitude(), usuarioDTO.getLocalizacao().getLongitude());
+        if (l == null) {
+            l = mapper.map(usuarioDTO.getLocalizacao(), Localizacao.class);
+            l = localizacaoRepository.save(l);
+        }
+        
+        usuario.setLocalizacao(l);
+        repo.save(usuario);
+
+        //usuario.setSenha(null);
+        return ResponseEntity.ok(mapper.map(usuario, UsuarioDTO.class));
+
+
+    }
+
+    @PutMapping("/atualizarFcmToken")
+    public ResponseEntity<?> atualizarFcmToken(@RequestBody Map<String, String> payload) {
+        String token = payload.get("token");
+        Integer idUsuario = Integer.parseInt(payload.get("idUsuario"));
+        
+        Usuario usuario = repo.findById(idUsuario).get();
+
+        if (usuario == null) return ResponseEntity.badRequest().body("Error: Usuário não encontrado!");
+
+        usuario.setFcmToken(token);
+        repo.save(usuario);
+
+        //usuario.setSenha(null);
+        return ResponseEntity.ok(mapper.map(usuario, UsuarioDTO.class));
+
+
     }
 
 }

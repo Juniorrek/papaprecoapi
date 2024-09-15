@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -34,9 +36,16 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario")
     private List<Produto> produtos;
 
+    @ManyToOne
+    @JoinColumn(name = "localizacao_id")
+    private Localizacao localizacao;
+
     private boolean verificado;
 
     public boolean isVerificado() {
         return verificado;
     }
+
+    @Column(name = "fcm_token")
+    private String fcmToken;
 }

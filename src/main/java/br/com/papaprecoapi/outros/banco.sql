@@ -1,18 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-CREATE TABLE usuario (
-    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    nome VARCHAR(128) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    senha VARCHAR(255),
-    verificado BOOL DEFAULT FALSE
-);
-INSERT INTO usuario (nome, email, senha, verificado) VALUES 
-('João Silva', 'joao.silva@example.com', '$2a$10$7uV3eBlXeQwoRCz.vR2UjuU1EIEuABk4zIzl2FTSHKKVRrh3a23v2', true),
-('Maria Oliveira', 'maria.oliveira@example.com', '$2a$10$8qMntoRTpHExdpXyER5cyOlBGwrGUbJJznbF1Kak49pq6QgCJGYP2', true),
-('Carlos Souza', 'carlos.souza@example.com', '$2a$10$5D25DY4ZtGaxTC2IAVaQYu5HCOUxo.YoI9q/SafI/w5QXyovD8Z8O', true),
-('Ana Pereira', 'ana.pereira@example.com', '$2a$10$Qft8ICsxyKHJlzPV4tW.7uCRn3yR.9A1kdRdtOkA/O5FdRnYV4I6m', true),
-('Lucas Lima', 'lucas.lima@example.com', '$2a$10$1f1iwcnlO8yRcUe4PLsK1u2MzwEdI6AA9vl5qRj2sqkfj2/Qc1WE6', true);
 
 /**************************************************************************************************************/
 
@@ -37,6 +24,26 @@ VALUES
     (-25.46928, -49.234917, 'Rua Macarrão'),
     (-25.47008, -49.235717, 'Rua Óleo de Soja'),
     (-25.46918, -49.234817, 'Rua Sal');
+
+/**************************************************************************************************************/
+
+CREATE TABLE usuario (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    nome VARCHAR(128) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    senha VARCHAR(255),
+    localizacao_id INTEGER,
+    verificado BOOL DEFAULT FALSE,
+    fcm_token VARCHAR(255),
+    FOREIGN KEY (localizacao_id) REFERENCES localizacao(id) ON DELETE CASCADE
+);
+INSERT INTO usuario (nome, email, senha, localizacao_id, verificado) VALUES 
+('João Silva', 'joao.silva@example.com', '$2a$10$7uV3eBlXeQwoRCz.vR2UjuU1EIEuABk4zIzl2FTSHKKVRrh3a23v2', 1, true),
+('Maria Oliveira', 'maria.oliveira@example.com', '$2a$10$8qMntoRTpHExdpXyER5cyOlBGwrGUbJJznbF1Kak49pq6QgCJGYP2', 3, true),
+('Carlos Souza', 'carlos.souza@example.com', '$2a$10$5D25DY4ZtGaxTC2IAVaQYu5HCOUxo.YoI9q/SafI/w5QXyovD8Z8O', 5, true),
+('Ana Pereira', 'ana.pereira@example.com', '$2a$10$Qft8ICsxyKHJlzPV4tW.7uCRn3yR.9A1kdRdtOkA/O5FdRnYV4I6m', 7, true),
+('Lucas Lima', 'lucas.lima@example.com', '$2a$10$1f1iwcnlO8yRcUe4PLsK1u2MzwEdI6AA9vl5qRj2sqkfj2/Qc1WE6', 9, true);
+
 /**************************************************************************************************************/
 
 CREATE TABLE produto (
@@ -44,7 +51,7 @@ CREATE TABLE produto (
 	nome VARCHAR(128) NOT NULL,
 	descricao VARCHAR(512),
 	preco NUMERIC(8,2) NOT NULL,
-    localizacao_id INTEGER,
+    localizacao_id INTEGER NOT NULL,
 	data_insercao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	data_observacao TIMESTAMP NOT NULL,
 	usuario_id INTEGER NOT NULL,
@@ -137,7 +144,15 @@ CREATE TABLE codigo_verificacao (
     FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
 
+/**************************************************************************************************************/
 
+CREATE TABLE alerta_usuario (
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    produto VARCHAR(128) NOT NULL,
+    preco NUMERIC(8, 2) NOT NULL,
+    usuario_id INTEGER NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+);
 
 
 /**************************************************************************************************************/
@@ -151,3 +166,18 @@ CREATE INDEX idx_produto_nome_latitude_longitude ON produto (nome, latitude, lon
 CREATE INDEX idx_voto_produto ON voto_usuario_produto (id_produto, voto);
 CREATE INDEX idx_voto ON voto_usuario_produto (voto);
 CREATE INDEX idx_produto_nome ON produto (nome);
+
+/**************************************************************************************************************/
+
+CREATE OR REPLACE FUNCTION haversine(lat1 float8, lon1 float8, lat2 float8, lon2 float8)
+RETURNS float8 AS $$
+DECLARE
+    r float8 := 6371; -- Raio da Terra em km
+    d_lat float8 := radians(lat2 - lat1);
+    d_lon float8 := radians(lon2 - lon1);
+    a float8 := sin(d_lat / 2)^2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(d_lon / 2)^2;
+    c float8 := 2 * atan2(sqrt(a), sqrt(1 - a));
+BEGIN
+    RETURN r * c;
+END;
+$$ LANGUAGE plpgsql;
