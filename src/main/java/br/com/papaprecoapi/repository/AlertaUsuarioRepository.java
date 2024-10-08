@@ -14,40 +14,8 @@ public interface AlertaUsuarioRepository extends JpaRepository<AlertaUsuario,Int
     List<AlertaUsuario> findByUsuario_id(Integer usuarioId);
 
     @Query(value = """
-        WITH produtos_sem_voto_negativo AS (
-            SELECT 
-                p.id AS produto_id,
-                p.nome,
-                p.preco,
-                p.data_observacao,
-                l.latitude AS produto_latitude,
-                l.longitude AS produto_longitude,
-                SUM(CASE WHEN vup.voto = false THEN 1 ELSE 0 END) AS votos_negativos
-            FROM 
-                produto p
-            JOIN 
-                localizacao l 
-                ON p.localizacao_id = l.id
-            LEFT JOIN 
-                voto_usuario_produto vup 
-                ON vup.id_produto = p.id
-            GROUP BY 
-                p.id, l.latitude, l.longitude
-            HAVING 
-                SUM(CASE WHEN vup.voto = false THEN 1 ELSE 0 END) = 0
-        ),
-        localizacao_usuario AS (
-            SELECT 
-                u.id AS usuario_id,
-                l.latitude AS usuario_latitude,
-                l.longitude AS usuario_longitude
-            FROM 
-                usuario u
-            JOIN 
-                localizacao l 
-                ON u.localizacao_id = l.id
-        )
-        SELECT DISTINCT ON (au.usuario_id)
+        SELECT DISTINCT ON (u.id)
+            u.id AS usuario_id,
             au.id AS alerta_id,
             au.produto AS produto_alerta,
             au.preco AS preco_alerta,
@@ -56,20 +24,17 @@ public interface AlertaUsuarioRepository extends JpaRepository<AlertaUsuario,Int
             p.preco AS preco_produto,
             p.data_observacao,
             u.fcm_token
-        FROM 
-            alerta_usuario au
-        JOIN 
-            produtos_sem_voto_negativo p 
-            ON LOWER(p.nome) = LOWER(au.produto)
-        JOIN 
-            localizacao_usuario lu 
-            ON haversine(lu.usuario_latitude, lu.usuario_longitude, p.produto_latitude, p.produto_longitude) <= 10
-        JOIN usuario u ON u.id = au.usuario_id
-        WHERE 
-            p.preco <= au.preco AND u.fcm_token IS NOT NULL
-        ORDER BY 
-            au.usuario_id, 
-            p.data_observacao DESC
+        FROM alerta_aleatorio aa
+        JOIN alerta_usuario au ON au.id = aa.alerta_id
+        JOIN usuario u ON u.id = au.usuario_id     
+        JOIN produtos_sem_voto_negativo p
+            ON similarity(LOWER(au.produto), LOWER(p.nome)) > 0.3
+        JOIN localizacao lu 
+            ON lu.id = u.localizacao_id AND
+            haversine(lu.latitude, lu.longitude, p.produto_latitude, p.produto_longitude) <= 10  
+        WHERE p.preco <= au.preco AND u.fcm_token IS NOT NULL
+        AND aa.rn = 1
+        ORDER BY u.id
     """, nativeQuery = true)
     List<AlertaProdutoDTO> findAlertasComProdutosValidos();
 }

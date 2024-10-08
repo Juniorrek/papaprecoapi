@@ -141,7 +141,7 @@ CREATE TABLE codigo_verificacao (
     tipo VARCHAR(64) NOT NULL,
     data_validade TIMESTAMP,
     data_geracao TIMESTAMP DEFAULT NOW(),
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
 
 /**************************************************************************************************************/
@@ -151,7 +151,7 @@ CREATE TABLE alerta_usuario (
     produto VARCHAR(128) NOT NULL,
     preco NUMERIC(8, 2) NOT NULL,
     usuario_id INTEGER NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id) ON DELETE CASCADE
 );
 
 
@@ -167,6 +167,43 @@ CREATE INDEX idx_voto_produto ON voto_usuario_produto (id_produto, voto);
 CREATE INDEX idx_voto ON voto_usuario_produto (voto);
 CREATE INDEX idx_produto_nome ON produto (nome);
 
+/**************************************************************************************************************/
+
+
+CREATE OR REPLACE VIEW produtos_sem_voto_negativo AS
+SELECT 
+    p.id AS produto_id,
+    p.nome,
+    p.preco,
+    p.data_observacao,
+    l.latitude AS produto_latitude,
+    l.longitude AS produto_longitude,
+    ROW_NUMBER() OVER (PARTITION BY LOWER(p.nome), l.latitude, l.longitude ORDER BY p.data_observacao DESC) AS row_num
+FROM 
+    produto p
+JOIN 
+    localizacao l ON p.localizacao_id = l.id
+LEFT JOIN 
+    voto_usuario_produto vup ON vup.id_produto = p.id
+GROUP BY 
+    p.id, l.latitude, l.longitude
+HAVING 
+    SUM(CASE WHEN vup.voto = false THEN 1 ELSE 0 END) = 0
+ORDER BY p.data_observacao DESC;
+   
+   
+CREATE OR REPLACE VIEW alerta_aleatorio AS
+SELECT 
+    u.id AS usuario_id,
+    au.id AS alerta_id,
+    au.produto,
+    au.preco,
+    ROW_NUMBER() OVER (PARTITION BY u.id ORDER BY random()) AS rn
+FROM 
+    alerta_usuario au
+JOIN 
+    usuario u ON u.id = au.usuario_id;
+   
 /**************************************************************************************************************/
 
 CREATE OR REPLACE FUNCTION haversine(lat1 float8, lon1 float8, lat2 float8, lon2 float8)

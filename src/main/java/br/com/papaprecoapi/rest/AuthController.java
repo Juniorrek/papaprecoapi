@@ -274,17 +274,15 @@ public class AuthController {
                 .build()
                 .toUri();*/
 
-        String msg = """
-                     Para verificar seu email digite o código abaixo no app: \r
-                     Código: """ + c.getCodigo().substring(0, 3) + "-" + c.getCodigo().substring(3);
+        String msg = "Para verificar seu email digite o código abaixo no app: \r" +
+                     "Código: " + c.getCodigo().substring(0, 3) + "-" + c.getCodigo().substring(3);
 
         emailService.sendEmail(usuario.getEmail(), "Papa Preço - Verificação de email", msg);
     }
 
     private void enviarEmailRedefinirSenha(Usuario usuario, CodigoVerificacao c) {
-        String msg = """
-                     Para redefinir sua senha digite o código abaixo no app: \r
-                     Código: """ + c.getCodigo().substring(0, 3) + "-" + c.getCodigo().substring(3);
+        String msg = "Para redefinir sua senha digite o código abaixo no app: \r" +
+                     "Código: " + c.getCodigo().substring(0, 3) + "-" + c.getCodigo().substring(3);
 
         emailService.sendEmail(usuario.getEmail(), "Papa Preço - Redefinir Senha", msg);
     }
