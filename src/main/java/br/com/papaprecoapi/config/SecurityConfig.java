@@ -30,10 +30,14 @@ public class SecurityConfig {
 
     private static final String[] WHITE_LIST_URL = { "/h2-console/**", "/produtos/**" };
 
-    @Value("jwt.rsa.pub")
+    // These are property references, so the key location stays configurable.
+    // Spring Security's RSA key converters resolve the value as a resource
+    // location, which is why a 'file:' or 'classpath:' string binds directly
+    // to a key here.
+    @Value("${jwt.rsa.pub}")
     private RSAPublicKey publicKey;
 
-    @Value("jwt.rsa.priv")
+    @Value("${jwt.rsa.priv}")
     private RSAPrivateKey privateKey;
 
     @Bean

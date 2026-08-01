@@ -4,6 +4,15 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Secrets — never commit ###
+# Real values are supplied through the environment; see .env.example.
+secrets/
+.env
+*.pem
+jwt.rsa.priv
+jwt.rsa.pub
+*-firebase-adminsdk-*.json
+
 ### STS ###
 .apt_generated
 .classpath

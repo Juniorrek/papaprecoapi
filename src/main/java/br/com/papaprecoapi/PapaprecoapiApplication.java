@@ -1,12 +1,14 @@
 package br.com.papaprecoapi;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -27,11 +29,17 @@ public class PapaprecoapiApplication {
 		return new ModelMapper();
 	}
 
+	// Service account key for the Firebase Admin SDK. Kept out of the classpath
+	// so it is never packaged into the artifact.
+	@Value("${firebase.credentials.location}")
+	private Resource firebaseCredentials;
+
 	@Bean
 	FirebaseMessaging firebaseMessaging() throws IOException {
-		GoogleCredentials googleCredentials = GoogleCredentials.fromStream(
-			new ClassPathResource("papapreco-38a7a-firebase-adminsdk-ys6cr-80c2ce2e1f.json").getInputStream()
-		);
+		GoogleCredentials googleCredentials;
+		try (InputStream credentialsStream = firebaseCredentials.getInputStream()) {
+			googleCredentials = GoogleCredentials.fromStream(credentialsStream);
+		}
 
 		FirebaseOptions firebaseOptions = FirebaseOptions.builder()
 			.setCredentials(googleCredentials).build();

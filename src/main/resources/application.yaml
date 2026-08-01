@@ -1,13 +1,18 @@
+# No environment-specific value and no secret is committed here. Every such
+# value is read from the environment; see .env.example for the full list.
+#
+# Placeholders without a default are required: the application fails to start
+# rather than silently falling back to something wrong.
 spring:
   application:
     name: papaprecoapi
   datasource:
-    url: 'jdbc:postgresql://localhost:5432/papapreco'
-    username: postgres
-    password: postgres
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
-    show-sql: true
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: false
@@ -15,11 +20,11 @@ spring:
       ddl-auto: none
     generate-ddl: false
   mail:
-    host: smtp.gmail.com
-    port: '465'
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:465}
     protocol: smtps
-    username: premiumpriceapi@gmail.com
-    password: zyem lozx fwhr mvsc
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         transport:
@@ -35,22 +40,34 @@ spring:
         jwt:
           issuer-uri: https://accounts.google.com
 server:
+  port: ${SERVER_PORT:8080}
   servlet:
     context-path: /papaprecoapi
+
+# Spring resource locations, so both 'file:' and 'classpath:' work. The keys
+# themselves live outside the source tree and outside the image.
 jwt:
   rsa:
-    pub: 'classpath:jwt.rsa.pub'
-    priv: 'classpath:jwt.rsa.priv'
+    pub: ${JWT_PUBLIC_KEY_LOCATION:file:./secrets/jwt.rsa.pub}
+    priv: ${JWT_PRIVATE_KEY_LOCATION:file:./secrets/jwt.rsa.priv}
+
+firebase:
+  credentials:
+    location: ${FIREBASE_CREDENTIALS_LOCATION:file:./secrets/firebase-service-account.json}
+
+# Defaults are production-safe. The previous TRACE levels logged bound SQL
+# parameters and authentication internals, which puts password hashes and
+# verification codes in the log; raise these per-run via LOG_LEVEL_* instead.
 logging:
   level:
     org:
       springframework:
         data:
-          jpa: DEBUG
-        security: TRACE
+          jpa: ${LOG_LEVEL_JPA:INFO}
+        security: ${LOG_LEVEL_SECURITY:INFO}
       hibernate:
-        SQL: DEBUG
+        SQL: ${LOG_LEVEL_SQL:INFO}
         type:
           descriptor:
             sql:
-              BasicBinder: TRACE
+              BasicBinder: ${LOG_LEVEL_SQL_PARAMS:INFO}
