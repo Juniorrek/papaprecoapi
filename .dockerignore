@@ -1,0 +1,21 @@
+# Keeping the build context small is secondary here. The first two entries are
+# the point: neither secrets nor a local .env may reach the daemon, let alone a
+# layer.
+secrets/
+.env
+
+.git/
+.gitignore
+target/
+*.war
+*.jar
+
+.idea/
+.vscode/
+.settings/
+.classpath
+.project
+*.iml
+
+README.md
+HELP.md

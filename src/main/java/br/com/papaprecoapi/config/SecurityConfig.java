@@ -47,6 +47,10 @@ public class SecurityConfig {
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests((authorize) -> authorize
+                // Probed by the container HEALTHCHECK and by Compose, neither of
+                // which can authenticate. Only 'health' is opened: the other
+                // actuator endpoints expose configuration and stay protected.
+                .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/notification/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()

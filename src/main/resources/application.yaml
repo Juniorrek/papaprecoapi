@@ -55,6 +55,28 @@ firebase:
   credentials:
     location: ${FIREBASE_CREDENTIALS_LOCATION:file:./secrets/firebase-service-account.json}
 
+# Only the health endpoint is exposed, and it reports UP/DOWN without detail.
+# Both are Spring Boot defaults; they are written out because the failure mode
+# of getting them wrong is publishing the environment and the datasource
+# configuration on an endpoint that has to stay unauthenticated.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+  health:
+    mail:
+      # Actuator opens an authenticated SMTP connection to Gmail on every health
+      # probe, and reports the whole application DOWN when it fails. That makes
+      # the container's health — and so whether it gets restarted or kept in the
+      # load balancer — depend on a third party that has nothing to do with
+      # serving product queries. Mail matters for signup verification, and a
+      # failure there belongs in an alert, not in a readiness check.
+      enabled: false
+
 # Defaults are production-safe. The previous TRACE levels logged bound SQL
 # parameters and authentication internals, which puts password hashes and
 # verification codes in the log; raise these per-run via LOG_LEVEL_* instead.
