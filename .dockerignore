@@ -6,6 +6,7 @@ secrets/
 
 .git/
 .gitignore
+docker-compose.yml
 target/
 *.war
 *.jar
