@@ -71,6 +71,24 @@
 			<version>42.7.3</version>
 		</dependency>
 
+		<!-- Schema as code. Flyway runs its migrations during startup, before
+		     JPA touches the database, so a fresh container comes up with a
+		     schema without anyone applying DDL by hand.
+
+		     Flyway 10 split its database support out of the core artifact, so
+		     PostgreSQL needs the second dependency; without it Flyway starts
+		     and then reports that it has no support for the jdbc:postgresql
+		     URL it was given. Both versions come from the Spring Boot parent
+		     (10.10.0) and are deliberately not pinned here. -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
