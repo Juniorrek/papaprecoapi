@@ -1,0 +1,100 @@
+# One stack, two places to run it.
+#
+# This is the file the Phase 1 EC2 instance deploys, and it is the file a
+# reviewer runs locally. What differs between the two is .env, never this file —
+# that equivalence is most of the argument for containerising in the first
+# place. Copy .env.example to .env and fill it in:
+#
+#   cp .env.example .env
+#   docker compose up --build
+#
+# Two different mechanisms both happen to read .env, which is worth keeping
+# straight:
+#
+#   * `${VAR}` below is Compose substituting into *this file* before it starts
+#     anything. Compose reads .env from this directory automatically for that.
+#   * `env_file:` hands variables to the *process inside the container*.
+#
+# So DB_NAME shapes the compose file, and MAIL_PASSWORD is only ever handed to
+# the API process. `environment:` wins over `env_file:` where they overlap.
+
+name: papapreco
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+
+    # `:?` refuses to start with a message instead of defaulting, matching how
+    # application.yaml treats the same three values. A database that silently
+    # came up as postgres/postgres would be worse than one that did not come up.
+    environment:
+      POSTGRES_DB: ${DB_NAME:-papapreco}
+      POSTGRES_USER: ${DB_USERNAME:?set DB_USERNAME in .env — see .env.example}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env — see .env.example}
+
+    # A named volume, so `docker compose down` keeps the data and
+    # `docker compose down -v` is the deliberate way to throw it away.
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+    # Bound to loopback, not 0.0.0.0. On the instance this is the difference
+    # between a database reachable only from the host and one exposed to the
+    # internet the moment a security group rule is too wide. Locally it is what
+    # lets `./mvnw spring-boot:run` on the host talk to this container.
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    # $$ is an escaped $ — Compose leaves it alone so the shell inside the
+    # container expands it. A single $ would be substituted out here instead.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+    restart: unless-stopped
+
+    # service_healthy, not the default service_started: Postgres accepts TCP
+    # connections for a while before it will answer queries, and Flyway runs
+    # during startup. Without this the API loses that race on a cold volume.
+    depends_on:
+      db:
+        condition: service_healthy
+
+    env_file:
+      - .env
+
+    # The one value .env cannot get right for both cases: inside the compose
+    # network the database answers to `db`, while the .env copy points at
+    # localhost so the API can also be run straight from an IDE against this
+    # same container.
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-papapreco}
+
+    # Read-only, and never a COPY in the Dockerfile — the credentials stay on
+    # the host and out of every layer and registry. The container runs as uid
+    # 1000 so it can read files the host user owns at 0600; see the Dockerfile.
+    volumes:
+      - ./secrets:/app/secrets:ro
+
+    # Loopback again. Phase 1 puts Caddy in front for TLS, and Caddy will reach
+    # this over the compose network as `api:8080` rather than through a
+    # published port, so this stays bound to the host for local use and for
+    # curl-ing the API while debugging on the instance.
+    ports:
+      - "127.0.0.1:8080:8080"
+
+    # The HEALTHCHECK itself lives in the Dockerfile, so it travels with the
+    # image rather than only applying when started through Compose.
+
+  # Phase 1 adds a `caddy` service here, once a domain exists to get a
+  # certificate for. It is left out rather than stubbed: Let's Encrypt has
+  # nothing to validate without a real name pointed at the instance.
+
+volumes:
+  db-data:

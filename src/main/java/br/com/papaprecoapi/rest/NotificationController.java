@@ -1,5 +1,6 @@
 package br.com.papaprecoapi.rest;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,13 @@ public class NotificationController {
 
     @PostMapping("/trigger-manual")
     public ResponseEntity<String> verificarEEnviarNotificacoes() {
+        // Without this the endpoint answers 200 "sent!" on an instance that has
+        // no Firebase credentials and sent nothing at all.
+        if (!firebaseMessagingService.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                    .body("Push notifications are disabled: no Firebase credentials are configured.");
+        }
+
         firebaseMessagingService.verificarAlertasEEnviarNotificacoes();
         return ResponseEntity.ok("Notificações enviadas!");
     }

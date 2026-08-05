@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +21,28 @@ import br.com.papaprecoapi.repository.AlertaUsuarioRepository;
 @Service
 public class FirebaseMessagingService {
 
-    @Autowired
+    private static final Logger log = LoggerFactory.getLogger(FirebaseMessagingService.class);
+
+    // required = false, because FirebaseConfig supplies no bean when the
+    // service account key is absent. This field is then null and the service
+    // reports itself disabled rather than the application refusing to start.
+    @Autowired(required = false)
     private FirebaseMessaging firebaseMessaging;
 
     @Autowired
     private AlertaUsuarioRepository alertaUsuarioRepository;
 
+    /** Whether a Firebase credential was found at startup. */
+    public boolean isEnabled() {
+        return firebaseMessaging != null;
+    }
+
     public String sendNotificationByToken(NotificationMessage notificationMessage) {
+        if (!isEnabled()) {
+            log.warn("Ignoring notification '{}': Firebase is not configured.", notificationMessage.getTitle());
+            return "Disabled";
+        }
+
         Notification notification = Notification
             .builder()
             .setTitle(notificationMessage.getTitle())
@@ -49,7 +66,14 @@ public class FirebaseMessagingService {
     }
 
     public void verificarAlertasEEnviarNotificacoes() {
-        List<AlertaProdutoDTO> alertas = alertaUsuarioRepository.findAlertasComProdutosValidos(); 
+        if (!isEnabled()) {
+            // Returning before the query, rather than after: with no way to
+            // deliver anything, running it would be work for nothing.
+            log.warn("Skipping the price alert sweep: Firebase is not configured.");
+            return;
+        }
+
+        List<AlertaProdutoDTO> alertas = alertaUsuarioRepository.findAlertasComProdutosValidos();
 
         for (AlertaProdutoDTO alerta : alertas) {
             NotificationMessage notificationMessage = new NotificationMessage();

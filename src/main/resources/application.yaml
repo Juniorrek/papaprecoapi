@@ -11,12 +11,28 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+  flyway:
+    # Schema only. The demo dataset lives in classpath:db/seed and is opted into
+    # by adding it here, which .env.example does for local development and a
+    # deployed environment does not — see FLYWAY_LOCATIONS there.
+    locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
+    # For adopting Flyway on a database that already exists — the one built by
+    # hand from the old banco.sql. Flyway only baselines when it finds tables
+    # but no history table of its own: it stamps that schema as already at V1
+    # and applies V2 onwards, instead of failing on a CREATE TABLE for a table
+    # that is already there. An empty database is unaffected and gets every
+    # migration. This can be dropped once no hand-built database is left.
+    baseline-on-migrate: true
   jpa:
     show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
         format_sql: false
     hibernate:
+      # Flyway owns the schema. Hibernate neither creates nor validates it, so
+      # a mismatch between an entity and a migration surfaces as a failing
+      # query rather than at startup — the Testcontainers tests planned for
+      # Phase 2 are what catch that.
       ddl-auto: none
     generate-ddl: false
   mail:
@@ -54,6 +70,28 @@ jwt:
 firebase:
   credentials:
     location: ${FIREBASE_CREDENTIALS_LOCATION:file:./secrets/firebase-service-account.json}
+
+# Only the health endpoint is exposed, and it reports UP/DOWN without detail.
+# Both are Spring Boot defaults; they are written out because the failure mode
+# of getting them wrong is publishing the environment and the datasource
+# configuration on an endpoint that has to stay unauthenticated.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+  health:
+    mail:
+      # Actuator opens an authenticated SMTP connection to Gmail on every health
+      # probe, and reports the whole application DOWN when it fails. That makes
+      # the container's health — and so whether it gets restarted or kept in the
+      # load balancer — depend on a third party that has nothing to do with
+      # serving product queries. Mail matters for signup verification, and a
+      # failure there belongs in an alert, not in a readiness check.
+      enabled: false
 
 # Defaults are production-safe. The previous TRACE levels logged bound SQL
 # parameters and authentication internals, which puts password hashes and

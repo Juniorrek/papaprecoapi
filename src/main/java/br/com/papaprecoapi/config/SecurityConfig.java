@@ -47,6 +47,22 @@ public class SecurityConfig {
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests((authorize) -> authorize
+                // Probed by the container HEALTHCHECK and by Compose, neither of
+                // which can authenticate. Only 'health' is opened: the other
+                // actuator endpoints expose configuration and stay protected.
+                .requestMatchers("/actuator/health").permitAll()
+                // Not an endpoint anyone calls. When a request fails anywhere —
+                // a 404 for a path that does not exist, a 500 from a handler —
+                // the servlet container re-dispatches it to /error to render the
+                // response body. That dispatch goes through this filter chain
+                // again, so while /error is authenticated the container's answer
+                // to every unhandled failure is 401. The status that reaches the
+                // client then describes the error page's access rules rather
+                // than the original fault, and every such bug reads as a broken
+                // token. Permitting it is safe: server.error.include-message and
+                // include-stacktrace default to 'never', so the body is
+                // timestamp, status, error and path, and nothing else.
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/notification/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()
