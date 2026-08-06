@@ -1,0 +1,23 @@
+# TLS termination. This is the only service in the stack reachable from the
+# internet; `api` and `db` stay on the compose network and on loopback.
+#
+# The domain is CADDY_DOMAIN from .env rather than being written in here, so
+# this file is identical on a laptop and on the instance — the same argument as
+# docker-compose.yml. Caddy substitutes {$VAR} at load time.
+#
+# Everything that makes HTTPS work is absent on purpose: no certificate paths,
+# no renewal cron, no HTTP-to-HTTPS redirect rule. Caddy obtains a certificate
+# from Let's Encrypt on first request for this name, renews it at 60 days, and
+# redirects :80 to :443 by itself. Adding those lines by hand would only
+# override defaults that are already correct.
+
+{$CADDY_DOMAIN} {
+	# `api` is the compose service name and 8080 is the port inside that
+	# container — this does not go through the 127.0.0.1:8080 publish, which
+	# exists only for curl on the host.
+	#
+	# The API keeps its /papaprecoapi context path: this proxies the whole
+	# request, path untouched, so https://<domain>/papaprecoapi/... is what the
+	# APK is built against.
+	reverse_proxy api:8080
+}
