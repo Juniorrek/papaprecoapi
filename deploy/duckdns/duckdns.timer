@@ -1,0 +1,16 @@
+[Unit]
+Description=Keep the DuckDNS record pointing at this instance
+
+[Timer]
+# The case that actually matters: a stopped instance comes back with a public
+# address it has never had before, and until this runs the domain points at
+# somebody else's machine.
+OnBootSec=15s
+
+# And on a schedule, for two reasons. DuckDNS drops records that go unupdated
+# for long enough, and a boot-time run that failed — DuckDNS briefly down, the
+# network not quite up — would otherwise leave DNS wrong until the next reboot.
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target

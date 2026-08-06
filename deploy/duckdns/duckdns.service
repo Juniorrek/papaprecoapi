@@ -1,0 +1,10 @@
+[Unit]
+Description=Publish this instance's public IPv4 to DuckDNS
+# network-online, not just network: the script has to reach duckdns.org, and
+# `network.target` is satisfied well before there is a usable default route.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/duckdns-update.sh
