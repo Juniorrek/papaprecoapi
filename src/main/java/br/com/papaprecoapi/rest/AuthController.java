@@ -52,7 +52,7 @@ public class AuthController {
     @Autowired
     private JwtService jwtService;
 
-    private final String googleClientId = "736661748519-433ei1nefrp6m1f0k3forqbh904r8oac.apps.googleusercontent.com";
+    private final String googleClientId = "736661748519-pun42oemsp2cooo7ukgijrnc3ain4s5d.apps.googleusercontent.com";
 
 
     @PostMapping("login")
