@@ -64,7 +64,14 @@ public class SecurityConfig {
                 // timestamp, status, error and path, and nothing else.
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/notification/**").permitAll()
+                // Authenticated, not permitAll. The app never calls anything
+                // under /notification — it registers its FCM token through
+                // /usuarios/atualizarFcmToken and receives pushes from Firebase
+                // directly — so nothing legitimate is turned away by this, and
+                // leaving it open let any unauthenticated caller run the alert
+                // sweep on demand. There is no role system to restrict it
+                // further; this is the strongest rule available here.
+                .requestMatchers("/notification/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/produtos/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/produtos").authenticated()
                 //.requestMatchers(WHITE_LIST_URL).permitAll()
