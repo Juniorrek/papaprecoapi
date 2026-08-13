@@ -5,7 +5,7 @@ so the deployment does not need an Elastic IP.
 
 ## Why this exists
 
-An Elastic IP is billed at USD 0.005/hr — about USD 3.65/month — whether or not
+An Elastic IP is billed at USD 0.005/hr (about USD 3.65/month) whether or not
 it is attached to a running instance. That is more than twice what a stopped
 instance costs in EBS, and the instance is expected to spend a good deal of time
 stopped. Without a reserved address, AWS assigns a new public IPv4 on every
@@ -22,11 +22,11 @@ the name, and the APK is built against the name.
 | `duckdns.service` | `/etc/systemd/system/` | Runs the script once |
 | `duckdns.timer` | `/etc/systemd/system/` | 15s after boot, then every 5 minutes |
 | `duckdns-park.service` | `/etc/systemd/system/` | Parks the record at `127.0.0.1` on shutdown |
-| `config.example` | `/etc/duckdns/config` | Subdomain and token — **fill in, never commit** |
+| `config.example` | `/etc/duckdns/config` | Subdomain and token. **Fill in, never commit** |
 
 `duckdns-park.service` is the security half. A stopped instance returns its
 public address to AWS, which reassigns it, while the DNS record still points
-there — so the name resolves to a stranger's machine until the instance comes
+there, so the name resolves to a stranger's machine until the instance comes
 back. Beyond misrouted traffic, Let's Encrypt's HTTP-01 challenge proves control
 of whatever a name currently points at, so whoever holds that address could be
 issued a valid certificate for this domain. Parking at `127.0.0.1` closes it.
