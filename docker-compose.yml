@@ -92,9 +92,58 @@ services:
     # The HEALTHCHECK itself lives in the Dockerfile, so it travels with the
     # image rather than only applying when started through Compose.
 
-  # Phase 1 adds a `caddy` service here, once a domain exists to get a
-  # certificate for. It is left out rather than stubbed: Let's Encrypt has
-  # nothing to validate without a real name pointed at the instance.
+  # TLS termination, and the only service in this file exposed to the internet.
+  #
+  # Behind the `prod` profile, so a plain `docker compose up` locally is exactly
+  # what it was before this service existed: nothing binds 80 or 443, and no
+  # certificate is requested for a domain a laptop does not answer for. On the
+  # instance:
+  #
+  #   docker compose --profile prod up -d
+  #
+  # A second docker-compose.prod.yml was the other way to do this and is the
+  # more common one. It is not used here because passing -f stops Compose
+  # auto-loading docker-compose.override.yml, and on the instance that override
+  # is what caps the JVM's heap — losing it silently would let the API size
+  # itself against the whole 2 GiB box and starve PostgreSQL.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    profiles: ["prod"]
+
+    depends_on:
+      - api
+
+    # Defaulted to empty rather than guarded with `:?` like the database
+    # variables above, and that difference is forced: Compose interpolates the
+    # whole file before it looks at profiles, so `:?` here would refuse to start
+    # `db` and `api` on a laptop that has no reason to set this. Empty instead
+    # leaves the Caddyfile with no site address, which Caddy rejects at parse
+    # time — a loud failure, in the one situation that can reach it. The message
+    # does not say so, though: an empty name turns the block into what looks
+    # like Caddy's global options, and it reports `unrecognized global option:
+    # reverse_proxy`. That error means CADDY_DOMAIN is unset.
+    environment:
+      CADDY_DOMAIN: ${CADDY_DOMAIN:-}
+
+    # 0.0.0.0, unlike every other port in this file, because this is the service
+    # that has to be reachable. 80 is not redundant next to 443: Let's Encrypt's
+    # HTTP-01 challenge is answered there, so closing it breaks issuance and
+    # every renewal after it. Caddy redirects the rest of :80 to :443 itself.
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Certificates and the ACME account key. This volume is the reason a
+      # restart does not re-request anything: Let's Encrypt issues five
+      # identical certificates per week and then refuses for the remainder of
+      # it, which is a week of no HTTPS, not a warning.
+      - caddy-data:/data
+      - caddy-config:/config
 
 volumes:
   db-data:
+  caddy-data:
+  caddy-config:

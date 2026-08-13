@@ -1,0 +1,15 @@
+# Template for /etc/duckdns/config on the instance. Copy it there, fill in the
+# token, and keep it root-owned at 0600 — the token is a credential in the same
+# sense as anything under secrets/, and it never belongs in git.
+#
+#   sudo install -d -m 700 /etc/duckdns
+#   sudo install -m 600 config.example /etc/duckdns/config
+#   sudo vi /etc/duckdns/config
+#
+# The subdomain only, without the .duckdns.org suffix — DuckDNS's update API
+# takes the label, not the fully qualified name.
+DUCKDNS_DOMAIN=papapreco
+
+# From the top of duckdns.org once signed in. Anyone holding it can repoint
+# every subdomain on the account.
+DUCKDNS_TOKEN=

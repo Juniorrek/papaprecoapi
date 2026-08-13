@@ -1,0 +1,33 @@
+[Unit]
+Description=Park the DuckDNS record at shutdown so it stops pointing at a released address
+# This ordering is also what makes the shutdown case work, in reverse: systemd
+# stops units before the targets they are ordered after, so ExecStop runs while
+# there is still a network to reach duckdns.org over. No shutdown.target
+# wiring is needed, and adding DefaultDependencies=no would actively break it
+# by moving this past the point the network is torn down.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# The work is all in ExecStop. ExecStart does nothing and RemainAfterExit keeps
+# the unit "active" for the whole uptime of the machine, which is what makes
+# systemd run ExecStop exactly once, at shutdown.
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/true
+
+# Why this exists at all. A stopped instance gives its public address back to
+# AWS, which hands it to somebody else — but the DNS record still points there
+# until the instance comes back and the timer corrects it. For that whole window
+# the name resolves to a stranger's machine. That is not only misrouted traffic:
+# Let's Encrypt's HTTP-01 challenge proves control of whatever the name
+# currently points at, so whoever holds that address could be issued a valid
+# certificate for this domain.
+#
+# 127.0.0.1 is unreachable from outside by construction, so the window closes.
+# The next boot republishes the real address 15 seconds in.
+ExecStop=/usr/local/bin/duckdns-update.sh 127.0.0.1
+TimeoutStopSec=45
+
+[Install]
+WantedBy=multi-user.target
