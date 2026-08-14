@@ -55,8 +55,23 @@ services:
       start_period: 10s
 
   api:
+    # Both image and build, deliberately.
+    #
+    # Locally, `docker compose up --build` still compiles from source and tags
+    # the result, so a fresh clone works with no registry access and MVP
+    # done-item 2 keeps holding.
+    #
+    # On the instance, `docker compose pull` fetches the image CI already built,
+    # so a 2 GB box never runs javac again. That is the whole point: the build
+    # moves to a 16 GB runner and the server only starts things.
+    #
+    # API_TAG pins a specific build. Unset it and you track the latest main;
+    # set it to a commit SHA and you have pinned a known-good build, which is
+    # what makes a rollback a thing you point at rather than a thing you rebuild.
+    image: ghcr.io/juniorrek/papaprecoapi:${API_TAG:-latest}
     build:
       context: .
+      
     restart: unless-stopped
 
     # service_healthy, not the default service_started: Postgres accepts TCP
