@@ -1,0 +1,21 @@
+name: Verify AWS OIDC
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  whoami:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assume the deploy role via OIDC
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::690473803585:role/papapreco-github-actions-deploy
+          aws-region: us-east-2
+
+      - name: Who am I
+        run: aws sts get-caller-identity
